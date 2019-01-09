@@ -20,6 +20,10 @@ func (*server) GetSum(ctx context.Context, req *calpb.SumRequest) (*calpb.SumRes
 	return result, nil
 }
 
+func (*server) GetAvg(ctx context.Context) (calpb.Calculator_GetAvgClient, error) {
+
+}
+
 func (*server) GetPrimeNum(req *calpb.PrimeRequest, serverStream calpb.Calculator_GetPrimeNumServer) error {
 	k := int64(2)
 	n := req.GetPrimeNum()
