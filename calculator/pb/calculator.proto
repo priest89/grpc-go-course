@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "calpb";
+
+message SumRequest {
+    int32 num1 = 1;
+    int32 num2 = 2;
+}
+
+message SumResponse {
+    int32 sum = 1;
+}
+
+message PrimeRequest {
+    int64 primeNum = 1;
+}
+
+message PrimeResponse {
+    int64 primeResult = 1;
+}
+
+message AverageRequest {
+    int64 avgNums = 1;
+}
+
+message AverageResponse {
+    float avgRes = 1;
+}
+
+service Calculator {
+    rpc GetSum (SumRequest) returns (SumResponse) {}
+    rpc GetPrimeNum(PrimeRequest) returns (stream PrimeResponse) {}
+    rpc GetAvg(stream AverageRequest) returns (AverageResponse) {}
+}
