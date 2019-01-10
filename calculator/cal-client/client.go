@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	calpb "github.com/grpc-go-course/calculator/pb"
 
@@ -23,7 +24,42 @@ func main() {
 	calClient := calpb.NewCalculatorClient(cc)
 
 	// log.Println(calSum(calClient))
-	calPrime(calClient)
+	// calPrime(calClient)
+	calAvg(calClient)
+}
+
+func calAvg(calClient calpb.CalculatorClient) {
+	reqs := []*calpb.AverageRequest{
+		&calpb.AverageRequest{
+			AvgNums: 1,
+		},
+		&calpb.AverageRequest{
+			AvgNums: 2,
+		},
+		&calpb.AverageRequest{
+			AvgNums: 4,
+		},
+		&calpb.AverageRequest{
+			AvgNums: 10,
+		},
+	}
+
+	clientStream, err := calClient.GetAvg(context.Background())
+
+	if err != nil {
+		log.Fatal("Error when open stream to server")
+	}
+	for _, req := range reqs {
+		fmt.Println("Send request: ", req.GetAvgNums())
+		clientStream.Send(req)
+		time.Sleep(1000 * time.Millisecond)
+	}
+	res, err := clientStream.CloseAndRecv()
+	if err != nil {
+		log.Fatal("Error when recieve response from server", err)
+	}
+	fmt.Println(res.GetAvgRes())
+
 }
 
 func calPrime(calClient calpb.CalculatorClient) {

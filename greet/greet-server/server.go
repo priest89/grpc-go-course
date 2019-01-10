@@ -50,7 +50,7 @@ func (*server) LongGreet(req greetpb.Greet_LongGreetServer) error {
 			res := &greetpb.LongGreetResponse{
 				Result: resStr,
 			}
-			req.SendAndClose(res)
+			return req.SendAndClose(res)
 		}
 		if err != nil {
 			log.Fatal("Error when proccess request first name: " + msg.GetGreeting().GetFirstName())

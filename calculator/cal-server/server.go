@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"net"
 
@@ -20,8 +21,24 @@ func (*server) GetSum(ctx context.Context, req *calpb.SumRequest) (*calpb.SumRes
 	return result, nil
 }
 
-func (*server) GetAvg(ctx context.Context) (calpb.Calculator_GetAvgClient, error) {
+func (*server) GetAvg(stream calpb.Calculator_GetAvgServer) error {
+	avg := float32(0.0)
+	i := 0
+	for {
+		val, err := stream.Recv()
+		if err == io.EOF {
+			return stream.SendAndClose(&calpb.AverageResponse{
+				AvgRes: avg / float32(i),
+			})
+		}
+		if err != nil {
+			log.Fatal("Failed to process request: ", err)
+		}
 
+		log.Printf("Recieve %v from client.", val.GetAvgNums())
+		avg += float32(val.AvgNums)
+		i++
+	}
 }
 
 func (*server) GetPrimeNum(req *calpb.PrimeRequest, serverStream calpb.Calculator_GetPrimeNumServer) error {
@@ -41,6 +58,7 @@ func (*server) GetPrimeNum(req *calpb.PrimeRequest, serverStream calpb.Calculato
 }
 
 func main() {
+	log.Println("-----Starting server!-----")
 	conn, err := net.Listen("tcp", "0.0.0.0:50051")
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
